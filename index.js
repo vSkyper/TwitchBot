@@ -21,7 +21,7 @@ const client = new tmi.Client({
     username: 'zadymka_user',
     password: process.env.TWITCH_OAUTH_TOKEN,
   },
-  channels: ['vSkyper', 'Bunny_Marthy'],
+  channels: ['vSkyper'],
 });
 
 client.connect().catch(console.error);
@@ -41,10 +41,12 @@ client.on('message', (channel, tags, message, self) => {
       client.say(channel, '@17norbert Idź do swojego pana Porvalo');
       break;
     case 'lewus':
-      client.say(
-        channel,
-        'ZJEBUS POLICE ZJEBUS POLICE ZJEBUS POLICE ZJEBUS POLICE'
-      );
+      if (channel != '#lewus') {
+        client.say(
+          channel,
+          'ZJEBUS POLICE ZJEBUS POLICE ZJEBUS POLICE ZJEBUS POLICE'
+        );
+      }
       break;
   }
 });
@@ -64,6 +66,9 @@ client.on('message', (channel, tags, message, self) => {
     case 'pogchamp':
       client.say(channel, 'PogChamp');
       break;
+    case 'xd':
+      client.say(channel, 'xD');
+      break;
     case 'monkas':
       client.say(channel, 'monkaS');
       break;
@@ -80,10 +85,10 @@ client.on('message', (channel, tags, message, self) => {
       client.say(channel, 'Madge');
       break;
     case 'mods':
-      client.say(channel, 'Mods');
+      client.say(channel, 'MODS');
       break;
     case 'monke':
-      client.say(channel, 'Monke');
+      client.say(channel, 'MONKE');
       break;
     case 'porvalo':
       client.say(channel, 'Porvalo');
@@ -96,6 +101,9 @@ client.on('message', (channel, tags, message, self) => {
       break;
     case 'pepejam':
       client.say(channel, 'pepeJAM');
+      break;
+    case 'pepevixa':
+      client.say(channel, 'pepeVIXA');
       break;
     case 'boxdelpls':
       client.say(channel, 'boxdelPls');
@@ -170,11 +178,21 @@ client.on('message', (channel, tags, message, self) => {
           'catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸'
         );
         break;
-      case /wirus/i.test(message):
+      case /luki oooo/i.test(message):
         client.say(
           channel,
-          'KLIKAĆ POLICE KLIKAĆ POLICE KLIKAĆ POLICE KLIKAĆ POLICE KLIKAĆ POLICE KLIKAĆ POLICE KLIKAĆ POLICE'
+          'LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO'
         );
+        break;
+      case /instream.ly/i.test(message):
+        if (tags.username == channel.replace('#', '')) {
+          client.say(
+            channel,
+            'WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE'
+          );
+        } else {
+          haveMatched = false;
+        }
         break;
       default:
         haveMatched = false;
