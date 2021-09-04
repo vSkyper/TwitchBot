@@ -1,5 +1,33 @@
 const tmi = require('tmi.js');
+const axios = require('axios');
 require('dotenv').config();
+
+let emotes = new Set();
+axios
+  .all([
+    axios.get('https://api.betterttv.net/3/cached/emotes/global'),
+    axios.get(
+      `https://api.betterttv.net/3/cached/users/twitch/${process.env.USER_ID}`
+    ),
+    axios.get(
+      `https://api.betterttv.net/3/cached/frankerfacez/users/twitch/${process.env.USER_ID}`
+    ),
+  ])
+  .then((resArr) => {
+    resArr[0].data.forEach((element) => {
+      emotes.add(element.code);
+    });
+    resArr[1].data.channelEmotes.forEach((element) => {
+      emotes.add(element.code);
+    });
+    resArr[1].data.sharedEmotes.forEach((element) => {
+      emotes.add(element.code);
+    });
+    resArr[2].data.forEach((element) => {
+      emotes.add(element.code);
+    });
+  })
+  .catch((error) => console.log(error));
 
 let active = true;
 const cooldown = () => {
@@ -54,91 +82,25 @@ client.on('message', (channel, tags, message, self) => {
 client.on('message', (channel, tags, message, self) => {
   if (self || !active) return;
 
-  let haveMatched = true;
-
-  switch (message.toLowerCase()) {
-    case 'pogu':
-      client.say(channel, 'PogU');
-      break;
-    case 'vislaud':
-      client.say(channel, 'VisLaud');
-      break;
-    case 'pogchamp':
-      client.say(channel, 'PogChamp');
-      break;
-    case 'xd':
-      client.say(channel, 'xD');
-      break;
-    case 'monkas':
-      client.say(channel, 'monkaS');
-      break;
-    case 'monkaw':
-      client.say(channel, 'monkaW');
-      break;
-    case 'sadeg':
-      client.say(channel, 'Sadeg');
-      break;
-    case 'sadge':
-      client.say(channel, 'Sadge');
-      break;
-    case 'madge':
-      client.say(channel, 'Madge');
-      break;
-    case 'mods':
-      client.say(channel, 'MODS');
-      break;
-    case 'monke':
-      client.say(channel, 'MONKE');
-      break;
-    case 'porvalo':
-      client.say(channel, 'Porvalo');
-      break;
-    case 'omegalul':
-      client.say(channel, 'OMEGALUL');
-      break;
-    case 'ez':
-      client.say(channel, 'EZ');
-      break;
-    case 'pepejam':
-      client.say(channel, 'pepeJAM');
-      break;
-    case 'pepevixa':
-      client.say(channel, 'pepeVIXA');
-      break;
-    case 'boxdelpls':
-      client.say(channel, 'boxdelPls');
-      break;
-    case ':tf:':
-      client.say(channel, ':tf:');
-      break;
-    case 'd:':
-      client.say(channel, 'D:');
-      break;
-    case 'r)':
-      client.say(channel, 'R)');
-      break;
-    case '+1':
-      client.say(channel, '+1');
-      break;
-    case 'ja':
-      client.say(channel, 'ja');
-      break;
-    case 'tak':
-      client.say(channel, 'tak');
-      break;
-    case 'nie':
-      client.say(channel, 'nie');
-      break;
-    default:
-      haveMatched = false;
-  }
-
-  if (haveMatched) {
+  if (emotes.has(message)) {
+    client.say(channel, message);
     cooldown();
   } else {
     haveMatched = true;
 
     switch (true) {
+      case /^\+1$/i.test(message):
+        client.say(channel, '+1');
+        break;
+      case /^ja$/i.test(message):
+        client.say(channel, 'ja');
+        break;
+      case /^tak$/i.test(message):
+        client.say(channel, 'tak');
+        break;
+      case /^nie$/i.test(message):
+        client.say(channel, 'nie');
+        break;
       case /^xd/i.test(message):
         client.say(channel, 'XDDDDDDDD');
         break;
@@ -184,7 +146,7 @@ client.on('message', (channel, tags, message, self) => {
           'LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO'
         );
         break;
-      case /instream.ly/i.test(message):
+      case /instream\.ly/i.test(message):
         if (tags.username == channel.replace('#', '')) {
           client.say(
             channel,
