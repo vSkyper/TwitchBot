@@ -22,6 +22,12 @@ const getUserEmotes = async (user_id) => {
       axios.get(
         `https://api.betterttv.net/3/cached/frankerfacez/users/twitch/${user_id}`
       ),
+      axios.get('https://api.twitch.tv/helix/chat/emotes/global', {
+        headers: {
+          Authorization: `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
+          'Client-Id': `${process.env.TWITCH_CLIENT_ID}`,
+        },
+      }),
     ])
     .then((resArr) => {
       let emotes = new Set();
@@ -37,12 +43,15 @@ const getUserEmotes = async (user_id) => {
       resArr[2].data.forEach((element) => {
         emotes.add(element.code);
       });
+      resArr[3].data.data.forEach((element) => {
+        emotes.add(element.name);
+      });
       return emotes;
     })
     .catch((error) => console.log(error));
 };
 
-const channels = ['vskyper'];
+const channels = ['vSkyper'];
 let emotes = new Set();
 (async () => {
   const user_id = await getUserID(channels);
@@ -75,13 +84,6 @@ const client = new tmi.Client({
 
 client.connect().catch(console.error);
 
-client.on('notice', (channel, msgid, message) => {
-  if (msgid === 'msg_duplicate') {
-    console.log('Duplicate handled');
-    active = true;
-  }
-});
-
 client.on('message', (channel, tags, message, self) => {
   if (self || !active) return;
 
@@ -92,14 +94,23 @@ client.on('message', (channel, tags, message, self) => {
     let haveMatched = true;
 
     switch (true) {
-      case /^\+1$/i.test(message):
+      case /^1$/.test(message):
+        client.say(channel, '1');
+        break;
+      case /^2$/.test(message):
+        client.say(channel, '2');
+        break;
+      case /^\+1$/.test(message):
         client.say(channel, '+1');
+        break;
+      case /^-1$/.test(message):
+        client.say(channel, '-1');
         break;
       case /^ja$/i.test(message):
         client.say(channel, 'ja');
         break;
-      case /^tak$/i.test(message):
-        client.say(channel, 'tak');
+      case /^ta$/i.test(message):
+        client.say(channel, 'ta');
         break;
       case /^nie$/i.test(message):
         client.say(channel, 'nie');
@@ -107,10 +118,10 @@ client.on('message', (channel, tags, message, self) => {
       case /^xd/i.test(message):
         client.say(channel, 'XDDDDD');
         break;
-      case /^\?\?/i.test(message):
+      case /^\?\?/.test(message):
         client.say(channel, '??????');
         break;
-      case /🥶/i.test(message):
+      case /🥶/.test(message):
         client.say(channel, '🥶');
         break;
       case /chować braci/i.test(message):
@@ -131,16 +142,52 @@ client.on('message', (channel, tags, message, self) => {
           'ODDAJ Madge ODDAJ Madge ODDAJ Madge ODDAJ Madge ODDAJ Madge'
         );
         break;
-      case /lebronjam/i.test(message) || /fire/i.test(message):
+      case /lebronjam/i.test(message) && /fire/i.test(message):
         client.say(
           channel,
-          'lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE'
+          'lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE'
+        );
+        break;
+      case /alienpls/i.test(message) && /fire/i.test(message):
+        client.say(
+          channel,
+          'AlienPls FIRE AlienPls FIRE AlienPls FIRE AlienPls FIRE AlienPls FIRE AlienPls FIRE AlienPls FIRE AlienPls FIRE'
+        );
+        break;
+      case /boxdelpls/i.test(message) && /fire/i.test(message):
+        client.say(
+          channel,
+          'boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE'
+        );
+        break;
+      case /pepebass/i.test(message) && /fire/i.test(message):
+        client.say(
+          channel,
+          'pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE'
+        );
+        break;
+      case /peepodj/i.test(message) && /disco/i.test(message):
+        client.say(
+          channel,
+          'peepoDJ Disco peepoDJ Disco peepoDJ Disco peepoDJ Disco peepoDJ Disco peepoDJ Disco peepoDJ Disco peepoDJ Disco'
+        );
+        break;
+      case /sadeg/i.test(message) && /rapthis/i.test(message):
+        client.say(
+          channel,
+          'Sadeg RapThis Sadeg RapThis Sadeg RapThis Sadeg RapThis Sadeg RapThis Sadeg RapThis Sadeg RapThis Sadeg RapThis'
         );
         break;
       case /catjam/i.test(message):
         client.say(
           channel,
-          'catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸'
+          'catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸'
+        );
+        break;
+      case /pompuj mods/i.test(message):
+        client.say(
+          channel,
+          'POMPUJ MODS POMPUJ MODS POMPUJ MODS POMPUJ MODS POMPUJ MODS POMPUJ MODS POMPUJ MODS POMPUJ MODS'
         );
         break;
       case /luki oooo/i.test(message):
@@ -149,15 +196,11 @@ client.on('message', (channel, tags, message, self) => {
           'LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO'
         );
         break;
-      case /instream\.ly/i.test(message):
-        if (tags.username == channel.replace('#', '')) {
-          client.say(
-            channel,
-            'WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE'
-          );
-        } else {
-          haveMatched = false;
-        }
+      case /https:\/\/instream\.ly/i.test(message):
+        client.say(
+          channel,
+          'WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE'
+        );
         break;
       default:
         haveMatched = false;
