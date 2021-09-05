@@ -51,7 +51,7 @@ const getUserEmotes = async (user_id) => {
     .catch((error) => console.log(error));
 };
 
-const channels = ['vSkyper'];
+const channels = ['holak1337'];
 let emotes = new Set();
 (async () => {
   const user_id = await getUserID(channels);
@@ -85,129 +85,31 @@ const client = new tmi.Client({
 client.connect().catch(console.error);
 
 client.on('message', (channel, tags, message, self) => {
+  if (self) return;
+
+  if (message.includes('@zadymka_user')) {
+    client.say(
+      channel,
+      `@${tags.username} ja człowiek nie robot MrDestructoid`
+    );
+  }
+});
+
+client.on('message', (channel, tags, message, self) => {
   if (self || !active) return;
 
   if (emotes.has(message)) {
     client.say(channel, message);
     cooldown();
-  } else {
-    let haveMatched = true;
-
-    switch (true) {
-      case /^1$/.test(message):
-        client.say(channel, '1');
-        break;
-      case /^2$/.test(message):
-        client.say(channel, '2');
-        break;
-      case /^\+1$/.test(message):
-        client.say(channel, '+1');
-        break;
-      case /^-1$/.test(message):
-        client.say(channel, '-1');
-        break;
-      case /^ja$/i.test(message):
-        client.say(channel, 'ja');
-        break;
-      case /^ta$/i.test(message):
-        client.say(channel, 'ta');
-        break;
-      case /^nie$/i.test(message):
-        client.say(channel, 'nie');
-        break;
-      case /^xd/i.test(message):
-        client.say(channel, 'XDDDDD');
-        break;
-      case /^\?\?/.test(message):
-        client.say(channel, '??????');
-        break;
-      case /🥶/.test(message):
-        client.say(channel, '🥶');
-        break;
-      case /chować braci/i.test(message):
-        client.say(
-          channel,
-          'CHOWAĆ BRACI POLICE CHOWAĆ BRACI POLICE CHOWAĆ BRACI POLICE CHOWAĆ BRACI POLICE CHOWAĆ BRACI POLICE CHOWAĆ BRACI POLICE'
-        );
-        break;
-      case /zamieszki/i.test(message):
-        client.say(
-          channel,
-          'ZAMIESZKI MODS ZAMIESZKI MODS ZAMIESZKI MODS ZAMIESZKI MODS ZAMIESZKI MODS ZAMIESZKI MODS'
-        );
-        break;
-      case /^oddaj /i.test(message):
-        client.say(
-          channel,
-          'ODDAJ Madge ODDAJ Madge ODDAJ Madge ODDAJ Madge ODDAJ Madge'
-        );
-        break;
-      case /lebronjam/i.test(message) && /fire/i.test(message):
-        client.say(
-          channel,
-          'lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE lebronJAM FIRE'
-        );
-        break;
-      case /alienpls/i.test(message) && /fire/i.test(message):
-        client.say(
-          channel,
-          'AlienPls FIRE AlienPls FIRE AlienPls FIRE AlienPls FIRE AlienPls FIRE AlienPls FIRE AlienPls FIRE AlienPls FIRE'
-        );
-        break;
-      case /boxdelpls/i.test(message) && /fire/i.test(message):
-        client.say(
-          channel,
-          'boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE boxdelPls FIRE'
-        );
-        break;
-      case /pepebass/i.test(message) && /fire/i.test(message):
-        client.say(
-          channel,
-          'pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE pepeBASS FIRE'
-        );
-        break;
-      case /peepodj/i.test(message) && /disco/i.test(message):
-        client.say(
-          channel,
-          'peepoDJ Disco peepoDJ Disco peepoDJ Disco peepoDJ Disco peepoDJ Disco peepoDJ Disco peepoDJ Disco peepoDJ Disco'
-        );
-        break;
-      case /sadeg/i.test(message) && /rapthis/i.test(message):
-        client.say(
-          channel,
-          'Sadeg RapThis Sadeg RapThis Sadeg RapThis Sadeg RapThis Sadeg RapThis Sadeg RapThis Sadeg RapThis Sadeg RapThis'
-        );
-        break;
-      case /catjam/i.test(message):
-        client.say(
-          channel,
-          'catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸 catJAM 🎸'
-        );
-        break;
-      case /pompuj mods/i.test(message):
-        client.say(
-          channel,
-          'POMPUJ MODS POMPUJ MODS POMPUJ MODS POMPUJ MODS POMPUJ MODS POMPUJ MODS POMPUJ MODS POMPUJ MODS'
-        );
-        break;
-      case /luki oooo/i.test(message):
-        client.say(
-          channel,
-          'LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO LUKI OOOO'
-        );
-        break;
-      case /https:\/\/instream\.ly/i.test(message):
-        client.say(
-          channel,
-          'WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE WIRUS POLICE'
-        );
-        break;
-      default:
-        haveMatched = false;
-    }
-
-    if (haveMatched) {
-      cooldown();
-    }
+  } else if (
+    [...emotes].some(
+      (s) =>
+        new RegExp(` ${s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')} `).test(
+          message
+        ) && !message.includes('@')
+    )
+  ) {
+    client.say(channel, message);
+    cooldown();
   }
 });
