@@ -2,32 +2,53 @@ const tmi = require('tmi.js');
 const axios = require('axios');
 require('dotenv').config();
 
+const getUserID = async (channels) => {
+  return axios
+    .get(`https://api.twitch.tv/helix/users?login=${channels[0]}`, {
+      headers: {
+        Authorization: `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
+        'Client-Id': `${process.env.TWITCH_CLIENT_ID}`,
+      },
+    })
+    .then((res) => res.data.data[0].id)
+    .catch((error) => console.log(error));
+};
+
+const getUserEmotes = async (user_id) => {
+  return axios
+    .all([
+      axios.get('https://api.betterttv.net/3/cached/emotes/global'),
+      axios.get(`https://api.betterttv.net/3/cached/users/twitch/${user_id}`),
+      axios.get(
+        `https://api.betterttv.net/3/cached/frankerfacez/users/twitch/${user_id}`
+      ),
+    ])
+    .then((resArr) => {
+      let emotes = new Set();
+      resArr[0].data.forEach((element) => {
+        emotes.add(element.code);
+      });
+      resArr[1].data.channelEmotes.forEach((element) => {
+        emotes.add(element.code);
+      });
+      resArr[1].data.sharedEmotes.forEach((element) => {
+        emotes.add(element.code);
+      });
+      resArr[2].data.forEach((element) => {
+        emotes.add(element.code);
+      });
+      return emotes;
+    })
+    .catch((error) => console.log(error));
+};
+
+const channels = ['vskyper'];
 let emotes = new Set();
-axios
-  .all([
-    axios.get('https://api.betterttv.net/3/cached/emotes/global'),
-    axios.get(
-      `https://api.betterttv.net/3/cached/users/twitch/${process.env.USER_ID}`
-    ),
-    axios.get(
-      `https://api.betterttv.net/3/cached/frankerfacez/users/twitch/${process.env.USER_ID}`
-    ),
-  ])
-  .then((resArr) => {
-    resArr[0].data.forEach((element) => {
-      emotes.add(element.code);
-    });
-    resArr[1].data.channelEmotes.forEach((element) => {
-      emotes.add(element.code);
-    });
-    resArr[1].data.sharedEmotes.forEach((element) => {
-      emotes.add(element.code);
-    });
-    resArr[2].data.forEach((element) => {
-      emotes.add(element.code);
-    });
-  })
-  .catch((error) => console.log(error));
+(async () => {
+  const user_id = await getUserID(channels);
+  emotes = await getUserEmotes(user_id);
+  console.log(`Number of emotes: ${emotes.size}`);
+})();
 
 let active = true;
 const cooldown = () => {
@@ -36,7 +57,7 @@ const cooldown = () => {
   setTimeout(() => {
     active = true;
     console.log('Cooldown ends');
-  }, 5000);
+  }, 10000);
 };
 
 const client = new tmi.Client({
@@ -49,7 +70,7 @@ const client = new tmi.Client({
     username: 'zadymka_user',
     password: process.env.TWITCH_OAUTH_TOKEN,
   },
-  channels: ['vSkyper'],
+  channels,
 });
 
 client.connect().catch(console.error);
@@ -62,31 +83,13 @@ client.on('notice', (channel, msgid, message) => {
 });
 
 client.on('message', (channel, tags, message, self) => {
-  if (self) return;
-
-  switch (tags.username) {
-    case '17norbert':
-      client.say(channel, '@17norbert Idź do swojego pana Porvalo');
-      break;
-    case 'lewus':
-      if (channel != '#lewus') {
-        client.say(
-          channel,
-          'ZJEBUS POLICE ZJEBUS POLICE ZJEBUS POLICE ZJEBUS POLICE'
-        );
-      }
-      break;
-  }
-});
-
-client.on('message', (channel, tags, message, self) => {
   if (self || !active) return;
 
   if (emotes.has(message)) {
     client.say(channel, message);
     cooldown();
   } else {
-    haveMatched = true;
+    let haveMatched = true;
 
     switch (true) {
       case /^\+1$/i.test(message):
@@ -102,9 +105,9 @@ client.on('message', (channel, tags, message, self) => {
         client.say(channel, 'nie');
         break;
       case /^xd/i.test(message):
-        client.say(channel, 'XDDDDDDDD');
+        client.say(channel, 'XDDDDD');
         break;
-      case /^\?/i.test(message):
+      case /^\?\?/i.test(message):
         client.say(channel, '??????');
         break;
       case /🥶/i.test(message):
@@ -122,7 +125,7 @@ client.on('message', (channel, tags, message, self) => {
           'ZAMIESZKI MODS ZAMIESZKI MODS ZAMIESZKI MODS ZAMIESZKI MODS ZAMIESZKI MODS ZAMIESZKI MODS'
         );
         break;
-      case /oddaj/i.test(message):
+      case /^oddaj /i.test(message):
         client.say(
           channel,
           'ODDAJ Madge ODDAJ Madge ODDAJ Madge ODDAJ Madge ODDAJ Madge'
