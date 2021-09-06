@@ -2,7 +2,7 @@ const tmi = require('tmi.js');
 const axios = require('axios');
 require('dotenv').config();
 
-const getUserID = async (channels) => {
+const getUserID = (channels) => {
   return axios
     .get(`https://api.twitch.tv/helix/users?login=${channels[0]}`, {
       headers: {
@@ -14,7 +14,7 @@ const getUserID = async (channels) => {
     .catch((error) => console.log(error));
 };
 
-const getUserEmotes = async (user_id) => {
+const getUserEmotes = (user_id) => {
   return axios
     .all([
       axios.get('https://api.betterttv.net/3/cached/emotes/global'),
@@ -51,7 +51,7 @@ const getUserEmotes = async (user_id) => {
     .catch((error) => console.log(error));
 };
 
-const channels = ['holak1337'];
+const channels = ['vSkyper'];
 let emotes = new Set();
 (async () => {
   const user_id = await getUserID(channels);
@@ -103,10 +103,7 @@ client.on('message', (channel, tags, message, self) => {
     cooldown();
   } else if (
     [...emotes].some(
-      (s) =>
-        new RegExp(` ${s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')} `).test(
-          message
-        ) && !message.includes('@')
+      (s) => message.includes(` ${s} `) && !message.includes('@')
     )
   ) {
     client.say(channel, message);
