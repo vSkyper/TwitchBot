@@ -2,9 +2,9 @@ const tmi = require('tmi.js');
 const axios = require('axios');
 require('dotenv').config();
 
-const getUserID = (channels) => {
+const getUserID = (channel) => {
   return axios
-    .get(`https://api.twitch.tv/helix/users?login=${channels[0]}`, {
+    .get(`https://api.twitch.tv/helix/users?login=${channel}`, {
       headers: {
         Authorization: `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
         'Client-Id': `${process.env.TWITCH_CLIENT_ID}`,
@@ -59,10 +59,10 @@ const getUserEmotes = (user_id) => {
     .catch((error) => console.log(error));
 };
 
-const channels = ['vskyper'];
+const channels = ['vSkyper'];
 let emotes = new Set();
 (async () => {
-  const user_id = await getUserID(channels);
+  const user_id = await getUserID(channels[0]);
   emotes = await getUserEmotes(user_id);
   console.log(`Number of emotes: ${emotes.size}`);
 })();
@@ -91,17 +91,6 @@ const client = new tmi.Client({
 });
 
 client.connect().catch(console.error);
-
-client.on('message', (channel, tags, message, self) => {
-  if (self) return;
-
-  if (message.includes('@zadymka_user')) {
-    client.say(
-      channel,
-      `@${tags.username} ja człowiek nie robot MrDestructoid`
-    );
-  }
-});
 
 client.on('message', (channel, tags, message, self) => {
   if (self || !active) return;
