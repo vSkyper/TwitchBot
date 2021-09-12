@@ -17,19 +17,31 @@ const getUserID = (channel) => {
 const getUserEmotes = (user_id) => {
   return axios
     .all([
-      axios.get('https://api.betterttv.net/3/cached/emotes/global'),
-      axios.get(`https://api.betterttv.net/3/cached/users/twitch/${user_id}`),
-      axios.get(
-        `https://api.betterttv.net/3/cached/frankerfacez/users/twitch/${user_id}`
-      ),
-      axios.get(`https://api.7tv.app/v2/users/${user_id}/emotes`),
-      axios.get('https://api.7tv.app/v2/emotes/global'),
-      axios.get('https://api.twitch.tv/helix/chat/emotes/global', {
-        headers: {
-          Authorization: `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
-          'Client-Id': `${process.env.TWITCH_CLIENT_ID}`,
-        },
-      }),
+      axios
+        .get('https://api.betterttv.net/3/cached/emotes/global')
+        .catch(() => ({ data: [] })),
+      axios
+        .get(`https://api.betterttv.net/3/cached/users/twitch/${user_id}`)
+        .catch(() => ({ data: { channelEmotes: [], sharedEmotes: [] } })),
+      axios
+        .get(
+          `https://api.betterttv.net/3/cached/frankerfacez/users/twitch/${user_id}`
+        )
+        .catch(() => ({ data: [] })),
+      axios
+        .get(`https://api.7tv.app/v2/users/${user_id}/emotes`)
+        .catch(() => ({ data: [] })),
+      axios
+        .get('https://api.7tv.app/v2/emotes/global')
+        .catch(() => ({ data: [] })),
+      axios
+        .get('https://api.twitch.tv/helix/chat/emotes/global', {
+          headers: {
+            Authorization: `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
+            'Client-Id': `${process.env.TWITCH_CLIENT_ID}`,
+          },
+        })
+        .catch(() => ({ data: { data: [] } })),
     ])
     .then((resArr) => {
       let emotes = new Set();
@@ -56,24 +68,27 @@ const getUserEmotes = (user_id) => {
       });
       return emotes;
     })
-    .catch((error) => console.log(error));
+    .catch((error) => {
+      console.log(error);
+      return new Set();
+    });
 };
 
-const channels = ['vSkyper'];
+const channels = ['vysotzky'];
 let emotes = new Set();
 (async () => {
   const user_id = await getUserID(channels[0]);
   emotes = await getUserEmotes(user_id);
-  console.log(`Number of emotes: ${emotes.size}`);
+  console.log('\x1b[33m%s\x1b[0m', `Number of emotes: ${emotes.size}`);
 })();
 
 let active = true;
 const cooldown = () => {
   active = false;
-  console.log('Cooldown starts');
+  console.log('\x1b[32m%s\x1b[0m', 'Cooldown starts');
   setTimeout(() => {
     active = true;
-    console.log('Cooldown ends');
+    console.log('\x1b[32m%s\x1b[0m', 'Cooldown ends');
   }, 10000);
 };
 
