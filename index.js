@@ -22,6 +22,8 @@ const getUserEmotes = (user_id) => {
       axios.get(
         `https://api.betterttv.net/3/cached/frankerfacez/users/twitch/${user_id}`
       ),
+      axios.get(`https://api.7tv.app/v2/users/${user_id}/emotes`),
+      axios.get('https://api.7tv.app/v2/emotes/global'),
       axios.get('https://api.twitch.tv/helix/chat/emotes/global', {
         headers: {
           Authorization: `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
@@ -43,7 +45,13 @@ const getUserEmotes = (user_id) => {
       resArr[2].data.forEach((element) => {
         emotes.add(element.code);
       });
-      resArr[3].data.data.forEach((element) => {
+      resArr[3].data.forEach((element) => {
+        emotes.add(element.name);
+      });
+      resArr[4].data.forEach((element) => {
+        emotes.add(element.name);
+      });
+      resArr[5].data.data.forEach((element) => {
         emotes.add(element.name);
       });
       return emotes;
@@ -51,7 +59,7 @@ const getUserEmotes = (user_id) => {
     .catch((error) => console.log(error));
 };
 
-const channels = ['vSkyper'];
+const channels = ['vskyper'];
 let emotes = new Set();
 (async () => {
   const user_id = await getUserID(channels);
