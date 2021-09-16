@@ -74,7 +74,7 @@ const getUserEmotes = (user_id) => {
     });
 };
 
-const channels = ['vysotzky'];
+const channels = ['vSkyper'];
 let emotes = new Set();
 (async () => {
   const user_id = await getUserID(channels[0]);
